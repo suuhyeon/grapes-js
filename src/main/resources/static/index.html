@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>GrapesJS Demo - Free Open Source Newsletter Editor</title>
+    <title>Grapesjs Test</title>
     <meta content="Best Free Open Source Responsive No-Code Newsletter HTML Email Builder" name="description">
     <link rel="stylesheet" href="grapesjs/grapes.min.css">
     <link rel="stylesheet" href="css/material.css">
@@ -15,6 +15,7 @@
     <script src="js/grapesjs-plugin-ckeditor/index.js"></script>
     <script src="js/grapesjs-preset-newsletter@1.0.2.js"></script>
     <script src="js/grapesjs-blocks-basic@1.0.2.js"></script>
+<!--    <script src="grapesjs/locale/ko.js" type="module"></script>-->
 </head>
 <style>
     .nl-link {
@@ -519,20 +520,62 @@
 <div class="ad-cont">
     <div id="native-carbon"></div>
     <script async type="text/javascript" src="./js/carbon-v2.js"></script>
+    <button id="save-btn"> save </button>
 </div>
 
 
-<script type="text/javascript">
+<script type="module">
+    import * as ko from '/grapesjs/locale/ko.js';
+
     var host = 'https://grapesjs.com/';
+
+    const storageUrl = `http://localhost:8080/projects/`;
 
     // Set up GrapesJS editor with the Newsletter plugin
     var editor = grapesjs.init({
+        i18n: {
+            locale: 'ko',
+            localeFallback: 'ko',
+            messages:
+                {
+                    ko: ko.default
+                }
+            // detectLocale: true,
+        },
         selectorManager: { componentFirst: true },
         clearOnRender: true,
         height: '100%',
         storageManager: {
+            type: 'local',
             options: {
-                local: { key: 'gjsProjectNl' }
+                // local: { key: `gjsProjectNl-${projectId}` },
+                remote: {
+                    urlLoad: storageUrl,
+                    urlStore: storageUrl,
+                    // onStore: (data, editor) => {
+                    //     const pagesHtml = editor.Pages.getAll().map(page => {
+                    //         const component = page.getMainComponent();
+                    //         return {
+                    //             html: editor.getHtml({ component }),
+                    //             css: editor.getCss({ component })
+                    //         }
+                    //     });
+                    //     return {data, pagesHtml};
+                    // },
+                    fetchOptions: opts => (opts.method === 'POST' ?  { method: 'PATCH' } : {}),
+                    // As the API stores projects in this format `{id: 1, data: projectData }`,
+                    // we have to properly update the body before the store and extract the
+                    // project data from the response result.
+                    onStore: (projectData, editor) => {
+                        return {
+                            gjs_html: editor.getHtml(),
+                            gjs_css: editor.getCss(),
+                            gjs_js: editor.getJs(),
+                            gjs_source: projectData,
+                        };
+                    },
+                    onLoad: result => result.data
+                },
             }
         },
         blockManager: {
@@ -717,6 +760,10 @@
             }
         }, 200);
     });
+
+    // document.getElementById('save-btn').addEventListener('click', () => {
+    //     editor.
+    // });
 
 
 </script>
