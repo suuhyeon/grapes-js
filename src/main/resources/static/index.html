@@ -546,37 +546,24 @@
         clearOnRender: true,
         height: '100%',
         storageManager: {
-            type: 'local',
-            options: {
-                // local: { key: `gjsProjectNl-${projectId}` },
-                remote: {
-                    urlLoad: storageUrl,
-                    urlStore: storageUrl,
-                    // onStore: (data, editor) => {
-                    //     const pagesHtml = editor.Pages.getAll().map(page => {
-                    //         const component = page.getMainComponent();
-                    //         return {
-                    //             html: editor.getHtml({ component }),
-                    //             css: editor.getCss({ component })
-                    //         }
-                    //     });
-                    //     return {data, pagesHtml};
-                    // },
-                    fetchOptions: opts => (opts.method === 'POST' ?  { method: 'PATCH' } : {}),
-                    // As the API stores projects in this format `{id: 1, data: projectData }`,
-                    // we have to properly update the body before the store and extract the
-                    // project data from the response result.
-                    onStore: (projectData, editor) => {
-                        return {
-                            gjs_html: editor.getHtml(),
-                            gjs_css: editor.getCss(),
-                            gjs_js: editor.getJs(),
-                            gjs_source: projectData,
-                        };
-                    },
-                    onLoad: result => result.data
-                },
+            type: 'remote',
+            urlStore: storageUrl,
+            contentTypeJson: true,
+            headers: {
+                'Content-Type': 'application/json'
             }
+            // options: {
+                // local: { key: `gjsProjectNl-${projectId}` },
+                // remote: {
+                //     headers: {
+                //       'Content-Type' : 'application/json'
+                //     },
+                //     contentTypeJson: true,
+                //     urlLoad: storageUrl,
+                //     urlStore: storageUrl,
+                //
+                // },
+            // }
         },
         blockManager: {
             blocks: [
@@ -761,10 +748,23 @@
         }, 200);
     });
 
-    // document.getElementById('save-btn').addEventListener('click', () => {
-    //     editor.
-    // });
+    document.getElementById('save-btn').addEventListener('click', () => {
+        // editor.store();
+        let htmlContent = editor.getHtml();
+        let cssContent = editor.getCss();
 
+        console.log('html: ', htmlContent);
+        console.log('css: ', cssContent);
+    });
+
+    const openModal = () => {
+        editor.Modal.open({
+            title: 'My title',
+            content: 'My content'
+        });
+    }
+
+    document.body.insertAdjacentElement('afterbegin', `<button onclick="openModal()">Open Modal</button>>`)
 
 </script>
 <script>
